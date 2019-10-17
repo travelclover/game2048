@@ -6,7 +6,7 @@ const levels = [
   { bg: '#eee4da', color: '#776e65', size: 34 }, // 2
   { bg: '#ede0c8', color: '#776e65', size: 34 }, // 4
   { bg: '#f2b179', color: '#f9f6f2', size: 34 }, // 8
-  { bg: '#f2b179', color: '#f9f6f2', size: 34 }, // 16
+  { bg: '#f59563', color: '#f9f6f2', size: 34 }, // 16
   { bg: '#f67c5f', color: '#f9f6f2', size: 34 }, // 32
   { bg: '#f65e3b', color: '#f9f6f2', size: 34 }, // 64
   { bg: '#edcf72', color: '#f9f6f2', size: 24 }, // 128
@@ -70,7 +70,7 @@ const Chessboard = ({ store, dispatch }) => {
                   newRow[i - 1] = newRow[i - 1] + 1;
                   score += Math.pow(2, newRow[i] + 2);
                   for (let j = i; j < newRow.length; j++) {
-                    if (newRow[j + 1]) {
+                    if (newRow[j + 1] || newRow[j + 1] === 0) {
                       newRow[j] = newRow[j + 1];
                     } else {
                       newRow[j] = null;
@@ -81,6 +81,38 @@ const Chessboard = ({ store, dispatch }) => {
             }
             while (newRow.length < 4) {
               newRow.push(null);
+            }
+            newGrid.push(newRow);
+          });
+          break;
+        case 'RIGHT':
+          _grid.forEach(row => {
+            let newRow = [];
+            row.forEach(item => {
+              if (item !== null) {
+                newRow.push(item);
+              }
+            });
+            if (newRow.length > 1) {
+              for (let i = newRow.length - 2; i >= 0; i--) {
+                if (newRow[i] === null) {
+                  break;
+                }
+                if (newRow[i] === newRow[i + 1]) {
+                  newRow[i + 1] = newRow[i + 1] + 1;
+                  score += Math.pow(2, newRow[i] + 2);
+                  for (let j = i; j >= 0; j--) {
+                    if (newRow[j - 1] || newRow[j - 1] === 0) {
+                      newRow[j] = newRow[j - 1];
+                    } else {
+                      newRow[j] = null;
+                    }
+                  }
+                }
+              }
+            }
+            while (newRow.length < 4) {
+              newRow.unshift(null);
             }
             newGrid.push(newRow);
           });
