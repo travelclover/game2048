@@ -1,30 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import Chessboard from './components/Chessboard/index.jsx';
+import { connect } from "react-redux";
 import './App.scss';
 
-function App() {
-  const [gameStarted, setGameStarted] = useState(false); // 游戏是否开始
-  const [stepNum, setStepNum] = useState(0); // 游戏步数
-  const [score, setScore] = useState(0); // 当前分数
-  const [bestScore, setBestScore] = useState(0); // 最高分数
-  const [stepDirection, setStepDirection] = useState(''); // 方向
+function App({ store, dispatch }) {
 
   useEffect(() => {
     const data = localStorage.getItem('bestScore');
     if (data) {
-      setBestScore(data);
+      dispatch({
+        type: 'updateBestScore',
+        payload: data,
+      });
     }
-  }, []);
-
-  useEffect(() => {
-    setStepDirection('');
-  }, [stepNum]);
+  }, [dispatch]);
 
   /**
    * 键盘事件
    */
   function onKeyUp(e) {
-    if (!gameStarted) {
+    if (!store.gameStarted) {
       return;
     }
     let direction = null;
@@ -48,14 +43,10 @@ function App() {
       default:
         break;
     }
-    setStepDirection(direction);
-  }
-
-  /**
-   * 更新步数
-   */
-  function updateStepNum() {
-    setStepNum(stepNum + 1);
+    dispatch({
+      type: 'updateStepDirection',
+      payload: direction,
+    });
   }
 
   return (
@@ -70,25 +61,21 @@ function App() {
           <div className="info">
             <div className="block">
               <p className="name">得分</p>
-              <p className="score">{score}</p>
+              <p className="score">{store.score}</p>
             </div>
             <div className="block">
               <p className="name">最高分</p>
-              <p className="score">{bestScore}</p>
+              <p className="score">{store.bestScore}</p>
             </div>
           </div>
         </div>
 
-        <Chessboard
-          updateScore={setScore}
-          setGameStarted={setGameStarted}
-          gameStarted={gameStarted}
-          stepDirection={stepDirection}
-          updateStepNum={updateStepNum}
-        />
+        <Chessboard />
       </div>
     </div>
   );
 }
 
-export default App;
+export default connect(state => ({
+  store: state,
+}))(App);

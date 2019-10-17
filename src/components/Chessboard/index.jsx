@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from "react-redux";
 import './index.scss';
 
 const levels = [
@@ -17,7 +18,7 @@ const CELL_WIDTH = 60; // 格子宽度
 const SPACE_WIDTH = 10; // 间隔宽度
 let _grid = null;
 
-const Chessboard = ({ updateScore, setGameStarted, stepDirection, updateStepNum }) => {
+const Chessboard = ({ store, dispatch }) => {
   const [msgVisible, setMsgVisible] = useState(true);
   const [grid, setGrid] = useState([
     [null, null, null, null],
@@ -45,13 +46,14 @@ const Chessboard = ({ updateScore, setGameStarted, stepDirection, updateStepNum 
   }, [grid]);
 
   useEffect(() => {
-    if (stepDirection) {
-      console.log(stepDirection)
-      switch (stepDirection) {
+    if (store.stepDirection) {
+      const newGrid = [];
+      let score = 0; // 分数
+      console.log(store.stepDirection)
+      switch (store.stepDirection) {
         case 'TOP':
           break;
         case 'LEFT':
-          const newGrid = [];
           _grid.forEach(row => {
             let newRow = [];
             row.forEach(item => {
@@ -61,11 +63,12 @@ const Chessboard = ({ updateScore, setGameStarted, stepDirection, updateStepNum 
             });
             if (newRow.length) {
               for (let i = 1; i <= newRow.length; i++) {
-                if (!newRow[i]) {
+                if (newRow[i] === null) {
                   break;
                 }
                 if (newRow[i] === newRow[i - 1]) {
                   newRow[i - 1] = newRow[i - 1] + 1;
+                  score += Math.pow(2, newRow[i] + 2);
                   for (let j = i; j < newRow.length; j++) {
                     if (newRow[j + 1]) {
                       newRow[j] = newRow[j + 1];
@@ -75,19 +78,47 @@ const Chessboard = ({ updateScore, setGameStarted, stepDirection, updateStepNum 
                   }
                 }
               }
-              while (newRow.length < 4) {
-                newRow.push(null);
-              }
+            }
+            while (newRow.length < 4) {
+              newRow.push(null);
             }
             newGrid.push(newRow);
           });
-          setGrid(newGrid);
           break;
         default:
           break;
       }
+      if (JSON.stringify(_grid) !== JSON.stringify(newGrid)) {
+        // 更新游戏步数
+        dispatch({
+          type: 'updateStepNum',
+        });
+
+        // 添加新的数
+        const spaceCells = [];
+        for (let i = 0; i < 4; i++) {
+          for (let j = 0; j < 4; j++) {
+            if (newGrid[i][j] === null) {
+              spaceCells.push({ x: i, y: j });
+            }
+          }
+        }
+        const random = Math.floor(Math.random() * spaceCells.length);
+        const newCellLevel = createNewCell();
+        const { x, y } = spaceCells[random];
+        newGrid[x][y] = newCellLevel;
+        setGrid(newGrid);
+      }
+      dispatch({
+        type: 'updateStepDirection',
+        payload: '',
+      });
+      dispatch({
+        type: 'updateScore',
+        payload: score,
+      });
     }
-  }, [stepDirection])
+  }, [dispatch, store.stepDirection])
 
   /**
    * 生成格子
@@ -132,7 +163,12 @@ const Chessboard = ({ updateScore, setGameStarted, stepDirection, updateStepNum 
 
     setGrid(newGrid);
     setMsgVisible(false);
-    setGameStarted(true);
+    dispatch({
+      type: 'updateState',
+      payload: {
+        gameStarted: true,
+      },
+    });
   }
 
   /**
@@ -182,4 +218,6 @@ const Chessboard = ({ updateScore, setGameStarted, stepDirection, updateStepNum 
   );
 };
 
-export default Chessboard;
+export default connect(state => ({
+  store: state,
+}))(Chessboard);
