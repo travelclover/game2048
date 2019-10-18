@@ -13,6 +13,7 @@ const levels = [
   { bg: '#edcc61', color: '#f9f6f2', size: 24 }, // 256
   { bg: '#edc850', color: '#f9f6f2', size: 24 }, // 512
   { bg: '#edc53f', color: '#f9f6f2', size: 14 }, // 1024
+  { bg: '#ecc400', color: '#f9f6f2', size: 14 }, // 2048
 ];
 const CELL_WIDTH = 60; // 格子宽度
 const SPACE_WIDTH = 10; // 间隔宽度
@@ -84,7 +85,6 @@ const Chessboard = ({ store, dispatch }) => {
     if (store.stepDirection) {
       const newGrid = [];
       let score = 0; // 分数
-      console.log(store.stepDirection)
       switch (store.stepDirection) {
         case 'TOP':
           while (newGrid.length < 4) {
