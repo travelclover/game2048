@@ -52,6 +52,41 @@ const Chessboard = ({ store, dispatch }) => {
       console.log(store.stepDirection)
       switch (store.stepDirection) {
         case 'TOP':
+          while (newGrid.length < 4) {
+            newGrid.push([[], [], [], []]);
+          }
+          for (let i = 0; i < 4; i++) {
+            let newCol = [];
+            for (let j = 0; j < 4; j++) {
+              if (_grid[j][i] !== null) {
+                newCol.push(_grid[j][i]);
+              }
+            }
+            if (newCol.length) {
+              for (let i = 1; i <= newCol.length; i++) {
+                if (newCol[i] === null) {
+                  break;
+                }
+                if (newCol[i] === newCol[i - 1]) {
+                  newCol[i - 1] = newCol[i - 1] + 1;
+                  score += Math.pow(2, newCol[i] + 2);
+                  for (let j = i; j < newCol.length; j++) {
+                    if (newCol[j + 1] || newCol[j + 1] === 0) {
+                      newCol[j] = newCol[j + 1];
+                    } else {
+                      newCol[j] = null;
+                    }
+                  }
+                }
+              }
+            }
+            while (newCol.length < 4) {
+              newCol.push(null);
+            }
+            newCol.forEach((item, index) => {
+              newGrid[index][i] = item;
+            });
+          }
           break;
         case 'LEFT':
           _grid.forEach(row => {
