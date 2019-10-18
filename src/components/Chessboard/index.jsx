@@ -20,6 +20,7 @@ let _grid = null;
 
 const Chessboard = ({ store, dispatch }) => {
   const [msgVisible, setMsgVisible] = useState(true);
+  const [msg, setMsg] = useState('准备好了吗？');
   const [grid, setGrid] = useState([
     [null, null, null, null],
     [null, null, null, null],
@@ -43,7 +44,41 @@ const Chessboard = ({ store, dispatch }) => {
     }
     setList(newList);
     _grid = JSON.parse(JSON.stringify(grid));
-  }, [grid]);
+
+    // 判断游戏是否结束
+    let isGameOver = true;
+    grid.forEach(row => {
+      row.forEach(item => {
+        if (item === null) {
+          isGameOver = false;
+        }
+      });
+    });
+    out:
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        if (
+          (grid[i][j] === null) ||
+          (j < 3 && (grid[i][j] === grid[i][j + 1])) ||
+          (i < 3 && (grid[i][j] === grid[i + 1][j]))
+        ) {
+          isGameOver = false;
+          break out;
+        }
+      }
+    }
+    if (isGameOver) { // 游戏结束
+      setMsg('Game over!');
+      setMsgVisible(true);
+      dispatch({
+        type: 'updateState',
+        payload: {
+          gameStarted: false,
+        },
+      });
+    }
+
+  }, [dispatch, grid]);
 
   useEffect(() => {
     if (store.stepDirection) {
@@ -261,7 +296,12 @@ const Chessboard = ({ store, dispatch }) => {
       y2 = Math.floor(Math.random() * 4);
     }
 
-    let newGrid = JSON.parse(JSON.stringify(grid));
+    let newGrid = [
+      [null, null, null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+    ];
     newGrid[y1][x1] = level1;
     newGrid[y2][x2] = level2;
 
@@ -271,6 +311,8 @@ const Chessboard = ({ store, dispatch }) => {
       type: 'updateState',
       payload: {
         gameStarted: true,
+        stepNum: 0,
+        score: 0,
       },
     });
   }
@@ -313,7 +355,7 @@ const Chessboard = ({ store, dispatch }) => {
       {
         msgVisible ? (
           <div className="game-over">
-            <p className="message">准备好了吗？</p>
+            <p className="message">{msg}</p>
             <div className="play-btn" onClick={playBtnOnClick}>开始游戏</div>
           </div>
         ) : null
