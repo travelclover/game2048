@@ -55,11 +55,11 @@ const Chessboard = ({ store, dispatch }) => {
           while (newGrid.length < 4) {
             newGrid.push([[], [], [], []]);
           }
-          for (let i = 0; i < 4; i++) {
+          for (let m = 0; m < 4; m++) {
             let newCol = [];
-            for (let j = 0; j < 4; j++) {
-              if (_grid[j][i] !== null) {
-                newCol.push(_grid[j][i]);
+            for (let n = 0; n < 4; n++) {
+              if (_grid[n][m] !== null) {
+                newCol.push(_grid[n][m]);
               }
             }
             if (newCol.length) {
@@ -84,7 +84,7 @@ const Chessboard = ({ store, dispatch }) => {
               newCol.push(null);
             }
             newCol.forEach((item, index) => {
-              newGrid[index][i] = item;
+              newGrid[index][m] = item;
             });
           }
           break;
@@ -151,6 +151,43 @@ const Chessboard = ({ store, dispatch }) => {
             }
             newGrid.push(newRow);
           });
+          break;
+        case 'BOTTOM':
+          while (newGrid.length < 4) {
+            newGrid.push([[], [], [], []]);
+          }
+          for (let m = 0; m < 4; m++) {
+            let newCol = [];
+            for (let n = 0; n < 4; n++) {
+              if (_grid[n][m] !== null) {
+                newCol.push(_grid[n][m]);
+              }
+            }
+            if (newCol.length > 1) {
+              for (let i = newCol.length - 2; i >= 0; i--) {
+                if (newCol[i] === null) {
+                  break;
+                }
+                if (newCol[i] === newCol[i + 1]) {
+                  newCol[i + 1] = newCol[i + 1] + 1;
+                  score += Math.pow(2, newCol[i] + 2);
+                  for (let j = i; j >= 0; j--) {
+                    if (newCol[j - 1] || newCol[j - 1] === 0) {
+                      newCol[j] = newCol[j - 1];
+                    } else {
+                      newCol[j] = null;
+                    }
+                  }
+                }
+              }
+            }
+            while (newCol.length < 4) {
+              newCol.unshift(null);
+            }
+            newCol.forEach((item, index) => {
+              newGrid[index][m] = item;
+            });
+          }
           break;
         default:
           break;
