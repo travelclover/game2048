@@ -25,6 +25,9 @@ export default (state = initState, action) => {
       };
     case 'updateScore':
       const score = state.score + action.payload;
+      if (score > state.bestScore) {
+        localStorage.setItem('bestScore', score);
+      }
       return {
         ...state,
         score,
